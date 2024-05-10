@@ -1,0 +1,142 @@
+groups:
+  - name: disk_usage_alerts
+    rules:
+      - alert: HostDiskUtilizationTrouble
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 >= 75
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "Disk utilization is over 75%. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is Disk Utilization exceeds 75% filesystem {{ $labels.mountpoint }}."
+          VALUE: '{{ $value }}'
+          LABELS: '{{ $labels }}'
+          summary: "Host is in trouble due to high disk utilization (instance {{ $labels.instance_name }}, filesystem {{ $labels.mountpoint }})"
+ 
+      - alert: HostDiskUtilizationCritical
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 >= 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Disk utilization is over 90%. The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is Disk Utilization exceeds 90% filesystem {{ $labels.mountpoint }}."
+          VALUE: '{{ $value }}'
+          LABELS: '{{ $labels }}'
+          summary: "Host is in a critical condition due to extremely high disk utilization (instance {{ $labels.instance_name }}, filesystem {{ $labels.mountpoint }})"
+ 
+#      - alert: HostDiskUtilizationResolved
+#        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 < 75
+#        for: 2m
+#        labels:
+#          severity: resolved
+#        annotations:
+#          description: "Disk utilization is below 75% filesystem {{ $labels.mountpoint }}"
+#          VALUE: '{{ $value }}'
+#          LABELS: '{{ $labels }}'
+#          summary: "Disk utilization is at a safe level on (instance {{ $labels.instance_name }}, filesystem {{ $labels.mountpoint }})"
+ 
+  - name: disk_partition_usage_alerts
+    rules:
+      - alert: HostDiskPartitionUsageCritical
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 >= 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Disk partition usage is over 90%. The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is Disk Partition Usage exceeds 90% partition {{ $labels.mountpoint }}."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Host disk partition is in a critical condition (instance {{ $labels.instance_name }}, partition {{ $labels.mountpoint }})"
+ 
+      - alert: HostDiskPartitionUsageTrouble
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 >= 75
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "Disk partition usage is over 75%. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is DiskPartition Usage exceeds 75% partition {{ $labels.mountpoint }}."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Host disk partition is in trouble (instance {{ $labels.instance_name }}, partition {{ $labels.mountpoint }})"
+ 
+#      - alert: HostDiskPartitionUsageResolved
+#        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 < 75
+#        for: 2m
+#        labels:
+#          severity: resolved
+#        annotations:
+#          description: "Disk partition usage is below 75% partition {{ $labels.mountpoint }}"
+#          VALUE: "{{ $value }}"
+#          LABELS: "{{ $labels }}"
+#          summary: "Host disk partition usage is resolved (instance {{ $labels.instance_name }}, partition {{ $labels.mountpoint }})"
+ 
+  - name: diskio_alerts
+    rules:
+      - alert: DiskIOHighCritical
+        expr: rate(node_disk_written_bytes_total{device=~"^(sd.*|xv.*|nvme.*)$"}[1m]) > 10000000
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Disk I/O ({{ printf \"%.2f\" $value }} bytes/sec) on {{ $labels.instance_name }} is critically high, exceeding the threshold of 10MB/s. Immediate investigation required."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "High disk I/O detected on {{ $labels.instance_name }}"
+ 
+#      - alert: DiskIOHighResolved
+#        expr: rate(node_disk_written_bytes_total{device=~"^(sd.*|xv.*|nvme.*)$"}[1m]) < 10000000
+#        for: 2m
+#        labels:
+#          severity: resolved
+#        annotations:
+#          description: "Disk I/O ({{ printf \"%.2f\" $value }} bytes/sec) on {{ $labels.instance_name }} is below the threshold of 10MB/s,indicating a resolved state. The disk I/O has returned to a normal level."
+#         VALUE: "{{ $value }}"
+#          LABELS: "{{ $labels }}"
+#          summary: "High disk I/O detected on {{ $labels.instance_name }}"
+ 
+  - name: server_alerts
+    rules:
+      - alert: ServerDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Server {{ $labels.instance_name }} is down. The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is the server is not responding."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Server {{ $labels.instance_name }} is down"
+ 
+#      - alert: ServerUp
+#        expr: up == 1
+#        for: 2m
+#        labels:
+#          severity: resolved
+#        annotations:
+#          description: "Server {{ $labels.instance_name }} is up"
+#          VALUE: "{{ $value }}"
+#          LABELS: "{{ $labels }}"
+#          summary: "Server {{ $labels.instance_name }} is up"
+ 
+  - name: memory_alerts
+    rules:
+      - alert: HostMemoryCritical
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Node memory is critically low (less than 10% available). The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is Memory Usage exceeds 90%."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Host is in a critical condition due to extremely low memory (instance {{ $labels.instance_name }})"
+ 
+      - alert: HostMemoryTrouble
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 25
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "Node memory is running low (less than 25% available). The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is Memory Usage exceeds 75%."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Host is in trouble due to low memory (instance {{ $labels.instance_name }})"

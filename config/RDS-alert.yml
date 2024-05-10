@@ -1,0 +1,140 @@
+groups:
+  - name: RDSInstanceBurstBalanceAlerts
+    rules:
+      - alert: RDSInstanceBurstBalanceCritical
+        expr: avg_over_time(aws_rds_burst_balance_average[15m]) > 90
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Burst Balance is > 90% over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} might be underutilizing its I/O capacitycritically.'
+          summary: 'Critical: RDS instance {{ $labels.dbinstance_identifier }} has very high burst balance'
+ 
+      - alert: RDSInstanceBurstBalanceTrouble
+        expr: avg_over_time(aws_rds_burst_balance_average[15m]) > 75
+        for: 10s
+        labels:
+          severity: trouble
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Burst Balance is > 75% over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} might be underutilizing its I/O capacity.'
+          summary: 'Warning: RDS instance {{ $labels.dbinstance_identifier }} has high burst balance'
+ 
+      - alert: RDSInstanceBurstBalanceResolved
+        expr: avg_over_time(aws_rds_burst_balance_average[15m]) <= 75
+        for: 10s
+        labels:
+          severity: resolved
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Burst Balance is at or below 75% over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} is utilizing its I/O capacity efficiently.'
+          summary: 'Resolved: RDS instance {{ $labels.dbinstance_identifier }} has an acceptable burst balance'
+ 
+  - name: RDSInstanceFreeableMemoryAlerts
+    rules:
+      - alert: RDSInstanceFreeableMemoryTrouble
+        expr: avg_over_time(aws_rds_freeable_memory_average[15m]) > 500
+        for: 10s
+        labels:
+          severity: trouble
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Freeable memory is above 500 bytes over the past 15 minutes, indicating potential memory underutilization or leak. The RDS instance {{ $labels.dbinstance_identifier }} might need attention.'
+          summary: 'Warning: RDS instance {{ $labels.dbinstance_identifier }} has high freeable memory'
+ 
+      - alert: RDSInstanceFreeableMemoryCritical
+        expr: avg_over_time(aws_rds_freeable_memory_average[15m]) > 3741824
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Freeable memory is above 3.74 MB over the past 10 minutes, indicating serious memory underutilization or leak. Immediate attention required for RDS instance {{ $labels.dbinstance_identifier }}.'
+          summary: 'Critical: RDS instance {{ $labels.dbinstance_identifier }} has very high freeable memory'
+ 
+      - alert: RDSInstanceFreeableMemoryResolved
+        expr: avg_over_time(aws_rds_freeable_memory_average[15m]) <= 500
+        for: 10s
+        labels:
+          severity: resolved
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Freeable memory is at or below 500 bytes over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} is utilizing its memory efficiently.'
+          summary: 'Resolved: RDS instance {{ $labels.dbinstance_identifier }} has an acceptable level of freeable memory'
+ 
+  - name: RDSInstanceCPUAlerts
+    rules:
+      - alert: RDSInstanceCPUCritical
+        expr: avg_over_time(aws_rds_cpuutilization_average[15m]) > 90
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'CPU utilization is above 90% over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} might be experiencing high load.'
+          summary: 'Critical: RDS instance {{ $labels.dbinstance_identifier }} has high CPU usage'
+ 
+      - alert: RDSInstanceCPUTrouble
+        expr: avg_over_time(aws_rds_cpuutilization_average[15m]) > 75
+        for: 10s
+        labels:
+          severity: trouble
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'CPU utilization is above 75% over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} is under significant load.'
+          summary: 'Warning: RDS instance {{ $labels.dbinstance_identifier }} has elevated CPU usage'
+ 
+      - alert: RDSInstanceCPUResolved
+        expr: avg_over_time(aws_rds_cpuutilization_average[15m]) <= 75
+        for: 10s
+        labels:
+          severity: resolved
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'CPU utilization is at or below 75% over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} is operating within normal parameters.'
+          summary: 'Resolved: RDS instance {{ $labels.dbinstance_identifier }} has normal CPU usage'
+ 
+  - name: RDSInstanceDBConnectionsAlerts
+    rules:
+      - alert: RDSInstanceDBConnectionsCritical
+        expr: avg_over_time(aws_rds_database_connections_average[15m]) > 3000
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Database connections are above 3000 over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} might be experiencing extremely high load.'
+          summary: 'Critical: RDS instance {{ $labels.dbinstance_identifier }} has very high database connections'
+ 
+      - alert: RDSInstanceDBConnectionsTrouble
+        expr: avg_over_time(aws_rds_database_connections_average[15m]) > 1000 and avg_over_time(aws_rds_database_connections_average[15m]) <= 3000
+        for: 10s
+        labels:
+          severity: trouble
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Database connections are between 1000 and 3000 over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} is under significant load.'
+          summary: 'Warning: RDS instance {{ $labels.dbinstance_identifier }} has high database connections'
+ 
+      - alert: RDSInstanceDBConnectionsResolved
+        expr: avg_over_time(aws_rds_database_connections_average[15m]) <= 1000
+        for: 10s
+        labels:
+          severity: resolved
+        annotations:
+          LABELS: '{{ $labels }}'
+          VALUE: '{{ $value }}'
+          description: 'Database connections are at or below 1000 over the past 15 minutes. The RDS instance {{ $labels.dbinstance_identifier }} is operating within normal parameters.'
+          summary: 'Resolved: RDS instance {{ $labels.dbinstance_identifier }} has normal database connections'

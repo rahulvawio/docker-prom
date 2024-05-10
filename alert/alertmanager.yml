@@ -1,0 +1,25 @@
+inhibit_rules:
+- source_matchers: [alertname="ServerDown"]
+  target_matchers: [state="patching"]
+  equal: ['state']
+
+global:
+  # Also possible to place this URL in a file.
+  # Ex: `slack_api_url_file: '/etc/alertmanager/slack_url'`
+  slack_api_url: ''
+
+route:
+  group_wait: 10s
+  group_interval: 4m
+  repeat_interval: 5h
+  receiver: 'slack-notifications'
+
+receivers:
+- name: 'slack-notifications'
+  slack_configs:
+  - channel: '#promothus'
+    text: 'https://internal.myorg.net/wiki/alerts/{{ .GroupLabels.app }}/{{ .GroupLabels.alertname }}'
+
+
+      #inhibit_rules_files:
+      #  "/etc/alertmanager/maintenance.yml"

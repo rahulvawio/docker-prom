@@ -1,0 +1,38 @@
+run:
+  timeout: 5m
+
+output:
+  format: line-number
+
+linters:
+  disable-all: true
+  enable:
+    - asasalint
+    - bodyclose
+    - errcheck
+    - errorlint
+    - exhaustive
+    - exportloopref
+    - gofmt
+    - gofumpt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nilerr
+    - nolintlint
+    - nonamedreturns
+    - predeclared
+    - revive
+    - staticcheck
+    - typecheck
+    - unconvert
+    - unused
+
+linters-settings:
+  errcheck:
+    exclude-functions:
+      - (github.com/go-kit/log.Logger).Log
+  goimports:
+    local-prefixes: "github.com/nerdswords/yet-another-cloudwatch-exporter"

@@ -1,0 +1,125 @@
+global:
+  scrape_interval: 1m
+  evaluation_interval: 1m
+ 
+scrape_configs:
+  - job_name: "node-linux"
+    ec2_sd_configs: &ec2config
+      - region: "ap-south-1"
+        role_arn: ""
+        access_key: ""
+        secret_key: ""
+    relabel_configs:
+      - source_labels: [__meta_ec2_tag_OS]
+        regex: linux
+        action: keep
+      - source_labels: [__meta_ec2_private_ip]
+        regex: '(.*)'
+        replacement: '${1}:1784'
+        target_label: __address__
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: instance_name
+      - target_label: "Organisation_Id"
+        replacement: "253"
+      - target_label: "raiseOnBehalfOf"
+        replacement: "ms-monitoring@minfytech.com"
+      - target_label: "IncidentTypeIdTI"
+        replacement: "4702"
+      - target_label: "IncidentTypeIdCI"
+        replacement: "4702"
+      - target_label: "serviceRequestTypeIdCU"
+        replacement: "4702"
+      - target_label: "JiraProjectIdTI"
+        replacement: "2113"
+      - target_label: "JiraProjectIdCI"
+        replacement: "2113"
+      - target_label: "JiraProjectIdCU"
+        replacement: "2113"
+      - target_label: "projectKeyTI"
+        replacement: "AT"
+      - target_label: "projectKeyCI"
+        replacement: "AT"
+      - target_label: "ProjectKeyCU"
+        replacement: "AT"
+      - target_label: "SearchInProjects"
+        replacement: "AT"
+      - target_label: "ClientName"
+        replacement: "Chola-UAT"
+      - target_label: "cust_email_id"
+        replacement: ""
+ 
+  - job_name: "node-windows"
+    ec2_sd_configs: *ec2config
+    relabel_configs:
+      - source_labels: [__meta_ec2_tag_OS]
+        regex: windows
+        action: keep
+      - source_labels: [__meta_ec2_private_ip]
+        regex: '(.*)'
+        replacement: '${1}:9182'
+        target_label: __address__
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: instance_name
+      - target_label: "Organisation_Id"
+        replacement: "253"
+      - target_label: "raiseOnBehalfOf"
+        replacement: "ms-monitoring@minfytech.com"
+      - target_label: "IncidentTypeIdTI"
+        replacement: "4702"
+      - target_label: "IncidentTypeIdCI"
+        replacement: "4702"
+      - target_label: "serviceRequestTypeIdCU"
+        replacement: "4702"
+      - target_label: "JiraProjectIdTI"
+        replacement: "2113"
+      - target_label: "JiraProjectIdCI"
+        replacement: "2113"
+      - target_label: "JiraProjectIdCU"
+        replacement: "2113"
+      - target_label: "projectKeyTI"
+        replacement: "AT"
+      - target_label: "projectKeyCI"
+        replacement: "AT"
+      - target_label: "ProjectKeyCU"
+        replacement: "AT"
+      - target_label: "SearchInProjects"
+        replacement: "AT"
+      - target_label: "ClientName"
+        replacement: "Chola-UAT"
+      - target_label: "cust_email_id"
+        replacement: ""
+ 
+  - job_name: "yace"
+    static_configs:
+      - targets: ["10.107.48.51:8099"]
+ 
+  - job_name: 'blackbox-https-url'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+#          - https://minfytech.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:9115
+#      - source_labels: [__param_target]
+#        target_label: instance_name  # Include the instance_name label
+#      - source_labels: [__meta_ec2_tag_Name]
+#        target_label: instance_name   # Use the EC2 tag Name as the instance_name label
+ 
+ 
+rule_files:
+  - "/etc/prometheus/Linux-alert.yml"
+  - "/etc/prometheus/Windows-alert.yml"
+#  - "/etc/prometheus/RDS-Alerts.yml"
+  - "/etc/prometheus/URL-Alerts.yml"
+ 
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets: ["10.107.48.51:9093"]

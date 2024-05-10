@@ -1,0 +1,101 @@
+################################# Windows Alerts ##############################################################
+## DiskUsage Alert
+  - name: windows_drive_disk_usage
+    rules:
+      - alert: DiskUtilizationTrouble-Windows
+        expr: ((windows_logical_disk_size_bytes - windows_logical_disk_free_bytes) / windows_logical_disk_size_bytes * 100) >= 75
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "Disk utilization is over 75%. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is Disk Utilization exceeds 75% filesystem {{ $labels.mountpoint }}."
+          VALUE: '{{ $value }}'
+          LABELS: '{{ $labels }}'
+          summary: "Host is in a trouble condition due to extremely high disk utilization (instance {{ $labels.instance_name }}, filesystem {{ $labels.mountpoint }})"
+ 
+      - alert: DiskUtilizationCritical-Windows
+        expr: ((windows_logical_disk_size_bytes - windows_logical_disk_free_bytes) / windows_logical_disk_size_bytes * 100) >= 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Disk utilization is over 90%. The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is Disk Utilization exceeds 90% filesystem {{ $labels.mountpoint }}."
+          VALUE: '{{ $value }}'
+          LABELS: '{{ $labels }}'
+          summary: "Host is in a critical condition due to extremely high disk utilization (instance {{ $labels.instance_name }}, filesystem {{ $labels.mountpoint }})"
+ 
+# DiskPartition Usage
+  - name: windows_disk_partition_usage
+    rules:
+      - alert: HostDiskPartitionUsageTrouble-Windows
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 >= 75
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "Disk partition usage is over 75%. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is DiskPartition Usage exceeds 75% partition {{ $labels.mountpoint }}."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Disk partition usage is above 75% on {{ $labels.mountpoint }} on instance {{ $labels.instance }} for the last 5 minutes."
+ 
+      - alert: HostDiskPartitionUsageCritical-Windows
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 >= 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Disk partition usage is over 90%. The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is Disk Partition Usage exceeds 90% partition {{ $labels.mountpoint }}."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Disk partition usage is above 90% on {{ $labels.mountpoint }} on instance {{ $labels.instance }} for the last 5 minutes."
+ 
+ 
+## MemoryUsage
+  - name:  windows_memory_usage
+    rules:
+      - alert: HighMemoryUsageTrouble-Windows
+        expr: (100 - 100 * windows_os_physical_memory_free_bytes / windows_cs_physical_memory_bytes) >= 75
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "Memory usage is over 75%. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is Memory Usage exceeds 75% for the last 5 minutes."
+          VALUE: '{{ $value }}'
+          LABELS: '{{ $labels }}'
+          summary: "Host is in a trouble condition due to high memory usage on (instance {{ $labels.instance_name }}for the last 5 minutes."
+ 
+      - alert: HighMemoryUsageCritical-Windows
+        expr: (100 - 100 * windows_os_physical_memory_free_bytes / windows_cs_physical_memory_bytes) >= 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Memory usage is over 90%. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is Memory Usage exceeds 90% for the last 5 minutes."
+          VALUE: '{{ $value }}'
+          LABELS: '{{ $labels }}'
+          summary: "Host is in a critical condition due to high memory usage on (instance {{ $labels.instance_name }}for the last 5 minutes."
+ 
+## CPUUsage
+  - name: windows_cpu_usage
+    rules:
+      - alert: HostHighCpuLoadTrouble-Windows
+        expr: 100 - (avg by (instance_name, instance, job, severity) (rate(windows_cpu_time_total{mode="idle"}[5m])) * 100) >= 75
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "CPU load is > 75. The Monitor {{ $labels.instance_name }} is in a TROUBLE state. The possible reason for this incident is CPU load exceeds 75."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Host is in a trouble condition due to extremely high CPU load (instance {{ $labels.instance_name }})"
+ 
+      - alert: HostHighCpuLoadCritical-Windows
+        expr: 100 - (avg by (instance_name, instance, job, severity) (rate(windows_cpu_time_total{mode="idle"}[5m])) * 100) >= 90
+        for: 5m
+        labels:
+          severity: trouble
+        annotations:
+          description: "CPU load is > 90. The Monitor {{ $labels.instance_name }} is in a CRITICAL state. The possible reason for this incident is CPU load exceeds 90."
+          VALUE: "{{ $value }}"
+          LABELS: "{{ $labels }}"
+          summary: "Host is in a critical condition due to extremely high CPU load (instance {{ $labels.instance_name }})"

@@ -1,0 +1,5 @@
+=== Cpu Utilazation and Up time
+
+grafana_panel_image:77[dashboard="rYdddlPWk"]
+
+grafana_panel_image:16[dashboard="rYdddlPWk"]

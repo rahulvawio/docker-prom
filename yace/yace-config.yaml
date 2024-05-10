@@ -1,0 +1,31 @@
+apiVersion: v1alpha1
+sts-region: ap-south-1
+discovery:
+  exportedTagsOnMetrics:
+      AWS/RDS:
+        - Project
+  jobs:
+    - type: AWS/RDS
+      regions: [ap-south-1]
+      metrics:
+        - name: CPUUtilization
+          statistics:
+            - Average
+        - name: DatabaseConnections
+          statistics: [Average]
+        - name: FreeableMemory
+          statistics: [Average]
+        - name: FreeStorageSpace
+          statistics: [Average]
+        - name: ReadThroughput
+          statistics: [Average]
+        - name: WriteThroughput
+          statistics: [Average]
+        - name: ReadLatency
+          statistics: [Maximum]
+        - name: WriteLatency
+          statistics: [Maximum]
+        - name: ReadIOPS
+          statistics: [Average]
+        - name: WriteIOPS
+          statistics: [Average]
